@@ -1,18 +1,24 @@
 import React, { useState } from "react";
-import { Plus, X, Edit2, Search } from "lucide-react";
+import { Plus, X, Edit2, Search, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 
 function Notes({ notes = [], onOpenModal, onDeleteItem }) {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [dataStructureFilter, setDataStructureFilter] = useState("all");
 
   // Get unique data structures
-  const dataStructures = [...new Set(
-    notes.map(n => n.dataStructure).filter(Boolean)
-  )].sort();
+  const dataStructures = [
+    ...new Set(notes.map((n) => n.dataStructure).filter(Boolean)),
+  ].sort();
 
   const filteredNotes = notes.filter((note) => {
     // Data structure filter
-    if (dataStructureFilter !== "all" && note.dataStructure !== dataStructureFilter) {
+    if (
+      dataStructureFilter !== "all" &&
+      note.dataStructure !== dataStructureFilter
+    ) {
       return false;
     }
 
@@ -85,56 +91,86 @@ function Notes({ notes = [], onOpenModal, onDeleteItem }) {
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="text-left space-y-4">
         {filteredNotes.map((note) => (
           <div
             key={note.id}
-            className="border border-stone-200 p-5 hover:bg-stone-100 transition-colors"
+            className="border border-stone-200 bg-white hover:bg-stone-50 transition-colors"
           >
-            <div className="flex items-start justify-between mb-3">
-              <h3 className="font-serif text-lg text-stone-800 flex-1">
-                {note.noteTitle}
-              </h3>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => onOpenModal("note", note)}
-                  className="text-stone-500 hover:text-stone-800"
+            <div className="p-5">
+              <div className="flex items-start justify-between mb-3">
+                <h3
+                  onClick={() => navigate(`/notes/${note.id}`)}
+                  className="font-serif text-lg text-stone-800 flex-1 cursor-pointer hover:text-stone-600"
                 >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onDeleteItem("note", note.id)}
-                  className="text-stone-500 hover:text-stone-800"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            <p className="text-sm text-stone-700 mb-3 whitespace-pre-wrap">
-              {note.noteContent}
-            </p>
-            {(note.dataStructure || note.tags) && (
-              <div className="flex flex-wrap gap-2">
-                {note.dataStructure && (
-                  <span className="text-xs px-2 py-1 border border-stone-200 text-stone-700 bg-stone-50">
-                    {note.dataStructure}
-                  </span>
-                )}
-                {note.tags && note.tags.split(",").map((tag, i) => (
-                  <span
-                    key={i}
-                    className="text-xs px-2 py-1 border border-stone-200 text-stone-700"
+                  {note.noteTitle}
+                </h3>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => navigate(`/notes/${note.id}`)}
+                    className="text-stone-500 hover:text-stone-800"
+                    title="View note"
                   >
-                    {tag.trim()}
-                  </span>
-                ))}
+                    <Eye className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenModal("note", note);
+                    }}
+                    className="text-stone-500 hover:text-stone-800"
+                    title="Quick edit"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteItem("note", note.id);
+                    }}
+                    className="text-stone-500 hover:text-stone-800"
+                    title="Delete"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            )}
+              <div
+                onClick={() => navigate(`/notes/${note.id}`)}
+                className="cursor-pointer"
+              >
+                <div className="text-sm text-stone-700 mb-3 line-clamp-3 prose prose-stone prose-sm max-w-none">
+                  <ReactMarkdown>
+                    {note.noteContent || "*No content*"}
+                  </ReactMarkdown>
+                </div>
+              </div>
+              {(note.dataStructure || note.tags) && (
+                <div className="flex flex-wrap gap-2">
+                  {note.dataStructure && (
+                    <span className="text-xs px-2 py-1 border border-stone-200 text-stone-700 bg-stone-50">
+                      {note.dataStructure}
+                    </span>
+                  )}
+                  {note.tags &&
+                    note.tags.split(",").map((tag, i) => (
+                      <span
+                        key={i}
+                        className="text-xs px-2 py-1 border border-stone-200 text-stone-700"
+                      >
+                        {tag.trim()}
+                      </span>
+                    ))}
+                </div>
+              )}
+            </div>
           </div>
         ))}
         {filteredNotes.length === 0 && (
           <p className="text-stone-500 italic text-center py-16 text-sm">
-            {notes.length === 0 ? "No notes" : "No notes found matching your search"}
+            {notes.length === 0
+              ? "No notes"
+              : "No notes found matching your search"}
           </p>
         )}
       </div>

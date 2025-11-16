@@ -63,6 +63,31 @@ def init_db():
         )
     ''')
 
+    # Resources table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS resources (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            resource_name TEXT NOT NULL,
+            resource_type TEXT NOT NULL,
+            resource_link TEXT,
+            data_structure TEXT,
+            is_favorite INTEGER DEFAULT 0,
+            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Notes table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS notes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            note_title TEXT NOT NULL,
+            note_content TEXT,
+            data_structure TEXT,
+            tags TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     db.commit()
     db.close()
 
@@ -388,6 +413,197 @@ def seed_lesson_exercises():
     db.close()
 
     return jsonify({'message': f'Seeded {count} exercises'})
+
+# ==================== RESOURCES ENDPOINTS ====================
+
+@app.route('/api/resources', methods=['GET'])
+def get_resources():
+    """Get all resources"""
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('SELECT * FROM resources ORDER BY added_at DESC')
+    resources = [dict(row) for row in cursor.fetchall()]
+
+    db.close()
+    return jsonify(resources)
+
+@app.route('/api/resources', methods=['POST'])
+def create_resource():
+    """Create a new resource"""
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.execute('''
+            INSERT INTO resources (
+                resource_name, resource_type, resource_link,
+                data_structure, is_favorite, added_at
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        ''', (
+            data['resourceName'],
+            data['resourceType'],
+            data.get('resourceLink'),
+            data.get('dataStructure'),
+            1 if data.get('isFavorite') else 0,
+            data.get('addedAt', datetime.now().isoformat())
+        ))
+
+        db.commit()
+        resource_id = cursor.lastrowid
+        db.close()
+
+        return jsonify({'id': resource_id, 'message': 'Resource created'}), 201
+    except Exception as e:
+        db.close()
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/resources/<int:resource_id>', methods=['PUT'])
+def update_resource(resource_id):
+    """Update a resource"""
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.execute('''
+            UPDATE resources
+            SET resource_name = ?, resource_type = ?, resource_link = ?,
+                data_structure = ?, is_favorite = ?
+            WHERE id = ?
+        ''', (
+            data['resourceName'],
+            data['resourceType'],
+            data.get('resourceLink'),
+            data.get('dataStructure'),
+            1 if data.get('isFavorite') else 0,
+            resource_id
+        ))
+
+        db.commit()
+        db.close()
+
+        return jsonify({'message': 'Resource updated'})
+    except Exception as e:
+        db.close()
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/resources/<int:resource_id>', methods=['DELETE'])
+def delete_resource(resource_id):
+    """Delete a resource"""
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('DELETE FROM resources WHERE id = ?', (resource_id,))
+
+    db.commit()
+    db.close()
+
+    return jsonify({'message': 'Resource deleted'})
+
+@app.route('/api/resources/<int:resource_id>/favorite', methods=['PATCH'])
+def toggle_favorite(resource_id):
+    """Toggle favorite status of a resource"""
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('SELECT is_favorite FROM resources WHERE id = ?', (resource_id,))
+    row = cursor.fetchone()
+
+    if row:
+        new_status = 0 if row['is_favorite'] else 1
+        cursor.execute('UPDATE resources SET is_favorite = ? WHERE id = ?', (new_status, resource_id))
+        db.commit()
+        db.close()
+        return jsonify({'message': 'Favorite toggled', 'is_favorite': new_status})
+
+    db.close()
+    return jsonify({'error': 'Resource not found'}), 404
+
+# ==================== NOTES ENDPOINTS ====================
+
+@app.route('/api/notes', methods=['GET'])
+def get_notes():
+    """Get all notes"""
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('SELECT * FROM notes ORDER BY created_at DESC')
+    notes = [dict(row) for row in cursor.fetchall()]
+
+    db.close()
+    return jsonify(notes)
+
+@app.route('/api/notes', methods=['POST'])
+def create_note():
+    """Create a new note"""
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.execute('''
+            INSERT INTO notes (
+                note_title, note_content, data_structure, tags, created_at
+            ) VALUES (?, ?, ?, ?, ?)
+        ''', (
+            data['noteTitle'],
+            data.get('noteContent'),
+            data.get('dataStructure'),
+            data.get('tags'),
+            data.get('createdAt', datetime.now().isoformat())
+        ))
+
+        db.commit()
+        note_id = cursor.lastrowid
+        db.close()
+
+        return jsonify({'id': note_id, 'message': 'Note created'}), 201
+    except Exception as e:
+        db.close()
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/notes/<int:note_id>', methods=['PUT'])
+def update_note(note_id):
+    """Update a note"""
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.execute('''
+            UPDATE notes
+            SET note_title = ?, note_content = ?, data_structure = ?, tags = ?
+            WHERE id = ?
+        ''', (
+            data['noteTitle'],
+            data.get('noteContent'),
+            data.get('dataStructure'),
+            data.get('tags'),
+            note_id
+        ))
+
+        db.commit()
+        db.close()
+
+        return jsonify({'message': 'Note updated'})
+    except Exception as e:
+        db.close()
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/notes/<int:note_id>', methods=['DELETE'])
+def delete_note(note_id):
+    """Delete a note"""
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('DELETE FROM notes WHERE id = ?', (note_id,))
+
+    db.commit()
+    db.close()
+
+    return jsonify({'message': 'Note deleted'})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

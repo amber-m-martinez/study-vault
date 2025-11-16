@@ -71,3 +71,54 @@ export const lessonsAPI = {
       body: JSON.stringify(lessonData),
     }),
 };
+
+// ==================== RESOURCES API ====================
+
+export const resourcesAPI = {
+  getAll: () => apiRequest('/resources'),
+
+  create: (resource) =>
+    apiRequest('/resources', {
+      method: 'POST',
+      body: JSON.stringify(resource),
+    }),
+
+  update: (id, resource) =>
+    apiRequest(`/resources/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(resource),
+    }),
+
+  delete: (id) =>
+    apiRequest(`/resources/${id}`, {
+      method: 'DELETE',
+    }),
+
+  toggleFavorite: (id) =>
+    apiRequest(`/resources/${id}/favorite`, {
+      method: 'PATCH',
+    }),
+};
+
+// ==================== NOTES API ====================
+
+export const notesAPI = {
+  getAll: () => apiRequest('/notes'),
+
+  create: (note) =>
+    apiRequest('/notes', {
+      method: 'POST',
+      body: JSON.stringify(note),
+    }),
+
+  update: (id, note) =>
+    apiRequest(`/notes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(note),
+    }),
+
+  delete: (id) =>
+    apiRequest(`/notes/${id}`, {
+      method: 'DELETE',
+    }),
+};

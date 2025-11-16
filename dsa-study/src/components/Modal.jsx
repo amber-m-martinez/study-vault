@@ -10,7 +10,7 @@ function Modal({
 }) {
   return (
     <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-stone-50 border-2 border-stone-800 p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-stone-50 border-2 border-stone-800 p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-stone-300">
           <h2 className="text-2xl font-serif text-stone-800">
             {formData.id ? "Edit" : "Add"}{" "}

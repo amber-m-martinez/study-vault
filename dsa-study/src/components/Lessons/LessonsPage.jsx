@@ -309,6 +309,14 @@ export default function LessonsPage({
                               >
                                 {lesson.difficulty}
                               </span>
+                              {lesson.dataStructures && lesson.dataStructures.map((ds, idx) => (
+                                <span
+                                  key={idx}
+                                  className="text-xs px-2 py-1 border border-blue-200 text-blue-800 bg-blue-50"
+                                >
+                                  {ds}
+                                </span>
+                              ))}
                             </div>
                           </div>
                           <ChevronRight className="w-5 h-5 text-stone-400" />

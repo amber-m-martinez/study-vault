@@ -47,6 +47,25 @@ export default function Lesson({
           </span>
         </div>
 
+        {/* Data Structures Used */}
+        {lesson.dataStructures && (
+          <div className="bg-blue-50 border border-blue-200 p-6 mb-6">
+            <h3 className="font-serif text-lg text-blue-900 mb-3 flex items-center gap-2">
+              <span className="text-2xl">🗂️</span> Data Structures Used
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {lesson.dataStructures.map((ds, idx) => (
+                <span
+                  key={idx}
+                  className="px-3 py-1 bg-blue-100 border border-blue-300 text-blue-800 text-sm"
+                >
+                  {ds}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Educational Content */}
         <div className="space-y-6 mb-8">
           {/* What Is It */}
@@ -122,25 +141,6 @@ export default function Lesson({
                   <div key={idx} className="text-stone-700 leading-relaxed">
                     {pattern}
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Data Structures Used */}
-          {lesson.dataStructures && (
-            <div className="bg-blue-50 border border-blue-200 p-6">
-              <h3 className="font-serif text-lg text-blue-900 mb-3 flex items-center gap-2">
-                <span className="text-2xl">🗂️</span> Data Structures Used
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {lesson.dataStructures.map((ds, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 bg-blue-100 border border-blue-300 text-blue-800 text-sm"
-                  >
-                    {ds}
-                  </span>
                 ))}
               </div>
             </div>

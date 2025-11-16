@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { BookOpen, Code, Star, Check, ChevronRight, Clock } from "lucide-react";
 import lessonData from "./lesson-data.json";
 import Modal from "./Modal";
@@ -7,7 +7,7 @@ import LessonsPage from "./Lessons/LessonsPage";
 import ProblemsPage from "./Lessons/ProblemsPage";
 import ResourcesPage from "./ResourcesPage";
 import NotesPage from "./NotesPage";
-import { problemsAPI } from "../services/api";
+import { problemsAPI, resourcesAPI, notesAPI, lessonsAPI } from "../services/api";
 
 export default function DSATracker() {
   const [currentPage, setCurrentPage] = useState("home");
@@ -30,6 +30,7 @@ export default function DSATracker() {
     resourceName: "",
     resourceType: "",
     resourceLink: "",
+    dataStructure: "",
     isFavorite: false,
     noteTitle: "",
     noteContent: "",
@@ -50,18 +51,22 @@ export default function DSATracker() {
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split("T")[0];
       const count =
-        problems.filter(
-          (p) => new Date(p.completedAt).toISOString().split("T")[0] === dateStr
-        ).length +
-        completedLessons.filter(
-          (l) => new Date(l.completedAt).toISOString().split("T")[0] === dateStr
-        ).length;
+        problems.filter((p) => {
+          const completedDate = p.completed_at || p.completedAt;
+          if (!completedDate) return false;
+          return new Date(completedDate).toISOString().split("T")[0] === dateStr;
+        }).length +
+        completedLessons.filter((l) => {
+          if (!l.completedAt) return false;
+          return new Date(l.completedAt).toISOString().split("T")[0] === dateStr;
+        }).length;
       activity.push({ date: dateStr, count });
     }
     return activity;
   };
 
-  const activityData = generateActivityData();
+  // Recalculate activity data when problems or completedLessons change
+  const activityData = useMemo(() => generateActivityData(), [problems, completedLessons]);
 
   useEffect(() => {
     loadData();
@@ -69,17 +74,48 @@ export default function DSATracker() {
 
   const loadData = async () => {
     try {
-      const [apiProblems, r, n, l, lastLesson] = await Promise.all([
+      const [apiProblems, apiResources, apiNotes, apiLessons, lastLesson] = await Promise.all([
         problemsAPI.getAll().catch(() => []),
-        window.storage.get("dsa-resources").catch(() => null),
-        window.storage.get("dsa-notes").catch(() => null),
-        window.storage.get("dsa-completed-lessons").catch(() => null),
+        resourcesAPI.getAll().catch(() => []),
+        notesAPI.getAll().catch(() => []),
+        lessonsAPI.getCompleted().catch(() => []),
         window.storage.get("dsa-last-visited-lesson").catch(() => null),
       ]);
       if (apiProblems) setProblems(apiProblems);
-      if (r?.value) setResources(JSON.parse(r.value));
-      if (n?.value) setNotes(JSON.parse(n.value));
-      if (l?.value) setCompletedLessons(JSON.parse(l.value));
+
+      // Convert snake_case from backend to camelCase for frontend
+      if (apiResources) {
+        const formattedResources = apiResources.map(r => ({
+          ...r,
+          resourceName: r.resource_name || r.resourceName,
+          resourceType: r.resource_type || r.resourceType,
+          resourceLink: r.resource_link || r.resourceLink,
+          dataStructure: r.data_structure || r.dataStructure,
+          isFavorite: r.is_favorite === 1 || r.isFavorite,
+          addedAt: r.added_at || r.addedAt,
+        }));
+        setResources(formattedResources);
+      }
+
+      if (apiNotes) {
+        const formattedNotes = apiNotes.map(n => ({
+          ...n,
+          noteTitle: n.note_title || n.noteTitle,
+          noteContent: n.note_content || n.noteContent,
+          dataStructure: n.data_structure || n.dataStructure,
+          createdAt: n.created_at || n.createdAt,
+        }));
+        setNotes(formattedNotes);
+      }
+
+      if (apiLessons) {
+        const formattedLessons = apiLessons.map(l => ({
+          lessonId: l.lesson_id,
+          completedAt: l.completed_at
+        }));
+        setCompletedLessons(formattedLessons);
+      }
+
       if (lastLesson?.value) setLastVisitedLesson(JSON.parse(lastLesson.value));
     } catch (error) {
       console.log("First load");
@@ -96,12 +132,16 @@ export default function DSATracker() {
 
   const markLessonComplete = async (lessonId) => {
     if (!completedLessons.find((l) => l.lessonId === lessonId)) {
-      const updated = [
-        ...completedLessons,
-        { lessonId, completedAt: new Date().toISOString() },
-      ];
-      setCompletedLessons(updated);
-      await saveData("completed-lessons", updated);
+      try {
+        await lessonsAPI.markComplete(lessonId);
+        const updated = [
+          ...completedLessons,
+          { lessonId, completedAt: new Date().toISOString() },
+        ];
+        setCompletedLessons(updated);
+      } catch (error) {
+        console.error("Error marking lesson complete:", error);
+      }
     }
   };
 
@@ -129,6 +169,7 @@ export default function DSATracker() {
         resourceName: "",
         resourceType: "",
         resourceLink: "",
+        dataStructure: "",
         isFavorite: false,
         noteTitle: "",
         noteContent: "",
@@ -159,36 +200,52 @@ export default function DSATracker() {
       setProblems(updated);
       await saveData("problems", updated);
     } else if (modalType === "resource") {
-      const newResource = {
-        id: editingId || Date.now(),
+      const resourceData = {
         resourceName: formData.resourceName,
         resourceType: formData.resourceType,
         resourceLink: formData.resourceLink,
+        dataStructure: formData.dataStructure,
         isFavorite: formData.isFavorite,
-        addedAt: editingId
-          ? resources.find((r) => r.id === editingId)?.addedAt
-          : timestamp,
       };
-      const updated = editingId
-        ? resources.map((r) => (r.id === editingId ? newResource : r))
-        : [...resources, newResource];
-      setResources(updated);
-      await saveData("resources", updated);
+
+      try {
+        if (editingId) {
+          await resourcesAPI.update(editingId, resourceData);
+          const existingResource = resources.find((r) => r.id === editingId);
+          setResources(resources.map((r) =>
+            r.id === editingId ? { ...resourceData, id: editingId, addedAt: existingResource.addedAt } : r
+          ));
+        } else {
+          const result = await resourcesAPI.create({ ...resourceData, addedAt: timestamp });
+          const newResource = { ...resourceData, id: result.id, addedAt: timestamp };
+          setResources([newResource, ...resources]);
+        }
+      } catch (error) {
+        console.error("Error saving resource:", error);
+      }
     } else if (modalType === "note") {
-      const newNote = {
-        id: editingId || Date.now(),
+      const noteData = {
         noteTitle: formData.noteTitle,
         noteContent: formData.noteContent,
+        dataStructure: formData.dataStructure,
         tags: formData.tags,
-        createdAt: editingId
-          ? notes.find((n) => n.id === editingId)?.createdAt
-          : timestamp,
       };
-      const updated = editingId
-        ? notes.map((n) => (n.id === editingId ? newNote : n))
-        : [...notes, newNote];
-      setNotes(updated);
-      await saveData("notes", updated);
+
+      try {
+        if (editingId) {
+          await notesAPI.update(editingId, noteData);
+          const existingNote = notes.find((n) => n.id === editingId);
+          setNotes(notes.map((n) =>
+            n.id === editingId ? { ...noteData, id: editingId, createdAt: existingNote.createdAt } : n
+          ));
+        } else {
+          const result = await notesAPI.create({ ...noteData, createdAt: timestamp });
+          const newNote = { ...noteData, id: result.id, createdAt: timestamp };
+          setNotes([newNote, ...notes]);
+        }
+      } catch (error) {
+        console.error("Error saving note:", error);
+      }
     }
     setShowModal(false);
   };
@@ -199,22 +256,31 @@ export default function DSATracker() {
       setProblems(updated);
       await saveData("problems", updated);
     } else if (type === "resource") {
-      const updated = resources.filter((r) => r.id !== id);
-      setResources(updated);
-      await saveData("resources", updated);
+      try {
+        await resourcesAPI.delete(id);
+        setResources(resources.filter((r) => r.id !== id));
+      } catch (error) {
+        console.error("Error deleting resource:", error);
+      }
     } else if (type === "note") {
-      const updated = notes.filter((n) => n.id !== id);
-      setNotes(updated);
-      await saveData("notes", updated);
+      try {
+        await notesAPI.delete(id);
+        setNotes(notes.filter((n) => n.id !== id));
+      } catch (error) {
+        console.error("Error deleting note:", error);
+      }
     }
   };
 
   const toggleFavorite = async (id) => {
-    const updated = resources.map((r) =>
-      r.id === id ? { ...r, isFavorite: !r.isFavorite } : r
-    );
-    setResources(updated);
-    await saveData("resources", updated);
+    try {
+      const result = await resourcesAPI.toggleFavorite(id);
+      setResources(resources.map((r) =>
+        r.id === id ? { ...r, isFavorite: result.is_favorite === 1 } : r
+      ));
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
   };
 
   const getDifficultyColor = (difficulty) => {
@@ -466,12 +532,11 @@ export default function DSATracker() {
 
       {showModal && (
         <Modal
-          modalType={modalType}
-          editingId={editingId}
+          type={modalType}
           formData={formData}
+          onChange={(field, value) => setFormData({ ...formData, [field]: value })}
           onClose={() => setShowModal(false)}
           onSubmit={handleSubmit}
-          onFormChange={setFormData}
         />
       )}
     </div>
