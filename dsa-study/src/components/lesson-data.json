@@ -1,0 +1,654 @@
+{
+  "Arrays/Strings": [
+    {
+      "id": "two-pointers",
+      "title": "Two Pointers",
+      "difficulty": "Easy",
+      "videoUrl": "https://www.youtube.com/watch?v=cQ1Oz4ckceM",
+      "explanation": "The Two Pointers technique uses two pointers (indices) to traverse a data structure, typically from opposite ends or at different speeds. This approach is particularly powerful for solving problems involving sorted arrays, strings, or linked lists.",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "visualizer": {
+        "array": [1, 3, 5, 7, 9, 11],
+        "target": 14,
+        "steps": [
+          {
+            "left": 0,
+            "right": 5,
+            "description": "Start: left=1, right=11, sum=12 < 14"
+          },
+          {
+            "left": 1,
+            "right": 5,
+            "description": "Move left: left=3, right=11, sum=14 \u2713"
+          }
+        ]
+      },
+      "exercise": {
+        "title": "Container With Most Water",
+        "difficulty": "Medium",
+        "description": "You are given an integer array height of length n. There are n vertical lines drawn such that the two endpoints of the ith line are (i, 0) and (i, height[i]). Find two lines that together with the x-axis form a container, such that the container contains the most water.",
+        "examples": [
+          {
+            "input": "height = [1,8,6,2,5,4,8,3,7]",
+            "output": "49",
+            "explanation": "The vertical lines are at indices 1 and 8. Area = min(8,7) * (8-1) = 49"
+          }
+        ],
+        "constraints": [
+          "n == height.length",
+          "2 <= n <= 10^5",
+          "0 <= height[i] <= 10^4"
+        ],
+        "starterCode": "function maxArea(height) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "height": [1, 8, 6, 2, 5, 4, 8, 3, 7]
+            },
+            "expected": 49
+          },
+          {
+            "input": {
+              "height": [1, 1]
+            },
+            "expected": 1
+          }
+        ],
+        "solution": "function maxArea(height) {\n  let left = 0, right = height.length - 1;\n  let maxArea = 0;\n  while (left < right) {\n    const area = Math.min(height[left], height[right]) * (right - left);\n    maxArea = Math.max(maxArea, area);\n    if (height[left] < height[right]) left++;\n    else right--;\n  }\n  return maxArea;\n}"
+      },
+      "whenToUse": [
+        "Finding pairs in a sorted array that meet certain criteria",
+        "Reversing arrays or strings in-place",
+        "Partitioning arrays around a pivot",
+        "Detecting cycles in linked lists",
+        "Merging two sorted arrays"
+      ],
+      "howItWorks": "1. Initialize two pointers (often 'left' and 'right')\n2. Position them strategically (usually at opposite ends)\n3. Move pointers based on comparison logic\n4. Continue until pointers meet or cross\n5. Track/update result as you go",
+      "keyInsights": [
+        "Reduces time complexity from O(n\u00b2) to O(n) for many problems",
+        "Works best with sorted or ordered data",
+        "Requires careful pointer movement logic",
+        "Often combined with other techniques"
+      ],
+      "commonPatterns": [
+        "**Opposite Direction**: Start at both ends, move toward center (e.g., finding pairs summing to target)",
+        "**Same Direction**: Both pointers move forward at different speeds (e.g., removing duplicates)",
+        "**Fast-Slow Pointers**: One moves faster than the other (e.g., cycle detection)"
+      ],
+      "dataStructures": ["Arrays", "Strings", "Linked Lists"],
+      "realWorldUse": "Two pointers is used in image processing (comparing pixels), DNA sequence analysis, and data compression algorithms."
+    },
+    {
+      "id": "sliding-window",
+      "title": "Sliding Window",
+      "difficulty": "Medium",
+      "videoUrl": "https://www.youtube.com/watch?v=jM2dhDPYMQM",
+      "explanation": "Sliding Window is a technique that maintains a 'window' over elements of an array or string. The window slides through the data structure, expanding or contracting based on certain conditions.",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1) to O(k)",
+      "visualizer": {
+        "array": [2, 1, 5, 1, 3, 2],
+        "k": 3,
+        "steps": [
+          {
+            "start": 0,
+            "end": 2,
+            "sum": 8,
+            "description": "Window [2,1,5]: sum=8"
+          },
+          {
+            "start": 1,
+            "end": 3,
+            "sum": 7,
+            "description": "Slide: remove 2, add 1: sum=7"
+          }
+        ]
+      },
+      "exercise": {
+        "title": "Longest Substring Without Repeating Characters",
+        "difficulty": "Medium",
+        "description": "Given a string s, find the length of the longest substring without duplicate characters.",
+        "examples": [
+          {
+            "input": "s = \"abcabcbb\"",
+            "output": "3",
+            "explanation": "The answer is \"abc\", with length 3."
+          },
+          {
+            "input": "s = \"pwwkew\"",
+            "output": "3",
+            "explanation": "The answer is \"wke\", with length 3."
+          }
+        ],
+        "constraints": [
+          "0 <= s.length <= 5 * 10^4",
+          "s consists of English letters, digits, symbols and spaces."
+        ],
+        "starterCode": "function lengthOfLongestSubstring(s) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "s": "abcabcbb"
+            },
+            "expected": 3
+          },
+          {
+            "input": {
+              "s": "pwwkew"
+            },
+            "expected": 3
+          }
+        ],
+        "solution": "function lengthOfLongestSubstring(s) {\n  let maxLen = 0, start = 0;\n  const seen = new Map();\n  for (let end = 0; end < s.length; end++) {\n    if (seen.has(s[end])) {\n      start = Math.max(start, seen.get(s[end]) + 1);\n    }\n    seen.set(s[end], end);\n    maxLen = Math.max(maxLen, end - start + 1);\n  }\n  return maxLen;\n}"
+      },
+      "whenToUse": [
+        "Finding subarrays/substrings with specific properties",
+        "Maximum/minimum in subarrays of size K",
+        "Longest substring without repeating characters",
+        "Problems involving contiguous sequences",
+        "Optimizing brute force nested loop solutions"
+      ],
+      "howItWorks": "1. Define window boundaries (start, end)\n2. Expand window by moving right pointer\n3. Process elements entering the window\n4. Shrink window when condition is violated\n5. Track optimal result throughout",
+      "keyInsights": [
+        "Transforms O(n\u00b2) or O(n\u00b3) solutions to O(n)",
+        "Two types: Fixed-size and Variable-size windows",
+        "Requires tracking window state (sum, count, set, etc.)",
+        "Window validity determined by problem constraints"
+      ],
+      "commonPatterns": [
+        "**Fixed Size**: Window size stays constant (e.g., max sum of k elements)",
+        "**Variable Size - Longest**: Expand until invalid, then shrink (e.g., longest substring)",
+        "**Variable Size - Shortest**: Shrink while valid, then expand (e.g., minimum window substring)"
+      ],
+      "dataStructures": ["Arrays", "Strings", "Hash Maps", "Sets"],
+      "realWorldUse": "Network packet analysis, stock price analysis (moving averages), real-time data streaming, and video frame buffering."
+    },
+    {
+      "id": "binary-search",
+      "title": "Binary Search",
+      "difficulty": "Easy",
+      "explanation": "Binary Search is a divide-and-conquer algorithm that efficiently finds a target value in a sorted array by repeatedly dividing the search space in half.",
+      "timeComplexity": "O(log n)",
+      "spaceComplexity": "O(1)",
+      "visualizer": {
+        "array": [1, 3, 5, 7, 9, 11, 13, 15],
+        "target": 11,
+        "steps": [
+          {
+            "left": 0,
+            "right": 7,
+            "mid": 3,
+            "description": "Check middle (7)"
+          },
+          {
+            "left": 4,
+            "right": 7,
+            "mid": 5,
+            "description": "Target > 7, search right. Check (11) \u2713"
+          }
+        ]
+      },
+      "exercise": {
+        "title": "Search in Rotated Sorted Array",
+        "difficulty": "Medium",
+        "description": "There is an integer array nums sorted in ascending order. Prior to being passed, nums is rotated at an unknown pivot. Given the array after rotation and an integer target, return the index of target if it is in nums, or -1 if not.",
+        "examples": [
+          {
+            "input": "nums = [4,5,6,7,0,1,2], target = 0",
+            "output": "4",
+            "explanation": "0 is at index 4."
+          }
+        ],
+        "constraints": [
+          "1 <= nums.length <= 5000",
+          "All values of nums are unique"
+        ],
+        "starterCode": "function search(nums, target) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "nums": [4, 5, 6, 7, 0, 1, 2],
+              "target": 0
+            },
+            "expected": 4
+          },
+          {
+            "input": {
+              "nums": [4, 5, 6, 7, 0, 1, 2],
+              "target": 3
+            },
+            "expected": -1
+          }
+        ],
+        "solution": "function search(nums, target) {\n  let left = 0, right = nums.length - 1;\n  while (left <= right) {\n    const mid = Math.floor((left + right) / 2);\n    if (nums[mid] === target) return mid;\n    if (nums[left] <= nums[mid]) {\n      if (nums[left] <= target && target < nums[mid]) right = mid - 1;\n      else left = mid + 1;\n    } else {\n      if (nums[mid] < target && target <= nums[right]) left = mid + 1;\n      else right = mid - 1;\n    }\n  }\n  return -1;\n}"
+      },
+      "videoUrl": "https://www.youtube.com/watch?v=s4DPM8ct1pI",
+      "whenToUse": [
+        "Searching in sorted arrays",
+        "Finding insertion positions",
+        "Finding first/last occurrence of element",
+        "Finding peak elements",
+        "Searching in rotated sorted arrays",
+        "Optimizing 'minimize/maximize' problems"
+      ],
+      "howItWorks": "1. Start with left=0, right=array.length-1\n2. Calculate mid = left + (right - left) / 2\n3. Compare target with mid element\n4. If target < mid: search left half (right = mid - 1)\n5. If target > mid: search right half (left = mid + 1)\n6. Repeat until found or left > right",
+      "keyInsights": [
+        "Requires sorted or partially sorted data",
+        "O(log n) time complexity - extremely fast",
+        "Template can solve many problem variations",
+        "Edge cases: array bounds, mid calculation overflow"
+      ],
+      "commonPatterns": [
+        "**Classic Search**: Find exact target value",
+        "**Lower Bound**: Find first element >= target",
+        "**Upper Bound**: Find first element > target",
+        "**Search Space Reduction**: Answer lies in valid range, binary search to find it"
+      ],
+      "dataStructures": ["Sorted Arrays", "Search Spaces", "Ranges"],
+      "realWorldUse": "Database indexing, file systems, version control systems, and finding bugs in code (binary search debugging)."
+    },
+    {
+      "id": "prefix-sum",
+      "title": "Prefix Sum",
+      "difficulty": "Easy",
+      "explanation": "Prefix Sum (also called cumulative sum) preprocesses an array to enable constant-time range sum queries. The prefix array stores cumulative sums from the start to each index.",
+      "timeComplexity": "O(n) build, O(1) query",
+      "spaceComplexity": "O(n)",
+      "exercise": {
+        "title": "Subarray Sum Equals K",
+        "difficulty": "Medium",
+        "description": "Given an array of integers nums and an integer k, return the total number of subarrays whose sum equals k.",
+        "examples": [
+          {
+            "input": "nums = [1,1,1], k = 2",
+            "output": "2",
+            "explanation": "Two subarrays: [1,1] at index 0 and [1,1] at index 1."
+          }
+        ],
+        "constraints": [
+          "1 <= nums.length <= 2 * 10^4",
+          "-1000 <= nums[i] <= 1000"
+        ],
+        "starterCode": "function subarraySum(nums, k) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "nums": [1, 1, 1],
+              "k": 2
+            },
+            "expected": 2
+          }
+        ],
+        "solution": "function subarraySum(nums, k) {\n  const map = new Map([[0, 1]]);\n  let sum = 0, count = 0;\n  for (const num of nums) {\n    sum += num;\n    if (map.has(sum - k)) count += map.get(sum - k);\n    map.set(sum, (map.get(sum) || 0) + 1);\n  }\n  return count;\n}"
+      },
+      "videoUrl": "https://www.youtube.com/watch?v=pVS3yhlzrlQ",
+      "whenToUse": [
+        "Multiple range sum queries on same array",
+        "Subarray sum problems",
+        "2D matrix range queries",
+        "Problems involving cumulative frequencies",
+        "Optimizing repeated calculations"
+      ],
+      "howItWorks": "1. Create prefix array of same size\n2. prefix[0] = array[0]\n3. For i from 1 to n: prefix[i] = prefix[i-1] + array[i]\n4. Sum from i to j = prefix[j] - prefix[i-1]\n5. Handle edge cases (i=0)",
+      "keyInsights": [
+        "O(n) preprocessing, O(1) per query",
+        "Space-time tradeoff: uses O(n) space",
+        "Can be extended to 2D matrices",
+        "Combined with hash maps for subarray problems"
+      ],
+      "commonPatterns": [
+        "**Range Sum**: Calculate sum between any two indices",
+        "**Subarray Sum Equals K**: Use prefix sum + hash map",
+        "**2D Prefix Sum**: For matrix range queries",
+        "**Running Sum**: Track cumulative values"
+      ],
+      "dataStructures": ["Arrays", "Hash Maps", "2D Arrays"],
+      "realWorldUse": "Image processing (integral images), financial analysis (cumulative returns), game development (damage calculation), and database query optimization."
+    },
+    {
+      "id": "kadane",
+      "title": "Kadane's Algorithm",
+      "difficulty": "Medium",
+      "explanation": "Kadane's Algorithm finds the maximum sum of a contiguous subarray in O(n) time. It's a dynamic programming solution that maintains the maximum sum ending at each position.",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1)",
+      "exercise": {
+        "title": "Maximum Subarray",
+        "difficulty": "Medium",
+        "description": "Given an integer array nums, find the subarray with the largest sum, and return its sum.",
+        "examples": [
+          {
+            "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+            "output": "6",
+            "explanation": "The subarray [4,-1,2,1] has the largest sum 6."
+          }
+        ],
+        "constraints": ["1 <= nums.length <= 10^5"],
+        "starterCode": "function maxSubArray(nums) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "nums": [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+            },
+            "expected": 6
+          }
+        ],
+        "solution": "function maxSubArray(nums) {\n  let maxSum = nums[0], currentSum = nums[0];\n  for (let i = 1; i < nums.length; i++) {\n    currentSum = Math.max(nums[i], currentSum + nums[i]);\n    maxSum = Math.max(maxSum, currentSum);\n  }\n  return maxSum;\n}"
+      },
+      "videoUrl": "https://www.youtube.com/watch?v=86CQq3pKSUw",
+      "whenToUse": [
+        "Maximum subarray sum problems",
+        "Finding best consecutive sequence",
+        "Stock profit maximization problems",
+        "Finding longest/best contiguous segment"
+      ],
+      "howItWorks": "1. Initialize: maxSoFar = array[0], maxEndingHere = array[0]\n2. For each element:\n   - maxEndingHere = max(element, maxEndingHere + element)\n   - maxSoFar = max(maxSoFar, maxEndingHere)\n3. Return maxSoFar",
+      "keyInsights": [
+        "Key decision: extend current subarray or start new one",
+        "Negative numbers reset the sum if they make it negative",
+        "Can track start/end indices with modifications",
+        "Handles all-negative arrays correctly"
+      ],
+      "commonPatterns": [
+        "**Classic Max Subarray**: Find maximum sum",
+        "**With Modifications**: Track indices, handle circular arrays",
+        "**2D Extension**: Maximum rectangle in matrix",
+        "**Minimum Subarray**: Flip the logic for minimum"
+      ],
+      "dataStructures": ["Arrays", "Running Variables"],
+      "realWorldUse": "Stock trading algorithms, signal processing (finding strongest signal), genomics (finding significant DNA sequences), and machine learning (feature selection)."
+    }
+  ],
+  "Hashing": [
+    {
+      "id": "hash-basics",
+      "title": "Hash Map / Hash Set",
+      "difficulty": "Easy",
+      "explanation": "Hash tables provide O(1) average-case lookup, insertion, deletion. Use Map for key-value pairs, Set for unique elements.",
+      "timeComplexity": "O(1) average",
+      "spaceComplexity": "O(n)",
+      "exercise": {
+        "title": "Group Anagrams",
+        "difficulty": "Medium",
+        "description": "Given an array of strings strs, group the anagrams together. You can return the answer in any order.",
+        "examples": [
+          {
+            "input": "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
+            "output": "[[\"bat\"],[\"nat\",\"tan\"],[\"ate\",\"eat\",\"tea\"]]",
+            "explanation": "Anagrams grouped together."
+          }
+        ],
+        "constraints": [
+          "1 <= strs.length <= 10^4",
+          "0 <= strs[i].length <= 100"
+        ],
+        "starterCode": "function groupAnagrams(strs) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "strs": ["eat", "tea", "tan", "ate", "nat", "bat"]
+            },
+            "expected": [["bat"], ["nat", "tan"], ["ate", "eat", "tea"]]
+          }
+        ],
+        "solution": "function groupAnagrams(strs) {\n  const map = new Map();\n  for (const str of strs) {\n    const key = str.split('').sort().join('');\n    if (!map.has(key)) map.set(key, []);\n    map.get(key).push(str);\n  }\n  return Array.from(map.values());\n}"
+      }
+    }
+  ],
+  "Graphs": [
+    {
+      "id": "graph-dfs",
+      "title": "Graph Depth First Search",
+      "difficulty": "Medium",
+      "explanation": "Depth-First Search explores as far as possible along each branch. Uses recursion or stack.",
+      "timeComplexity": "O(V + E)",
+      "spaceComplexity": "O(V)",
+      "exercise": {
+        "title": "Number of Islands",
+        "difficulty": "Medium",
+        "description": "Given an m x n 2D grid of 1s (land) and 0s (water), return the number of islands.",
+        "examples": [
+          {
+            "input": "grid = [[\"1\",\"1\",\"0\"],[\"0\",\"1\",\"0\"],[\"1\",\"1\",\"1\"]]",
+            "output": "1",
+            "explanation": "All 1s connected, forming one island."
+          }
+        ],
+        "constraints": [
+          "m == grid.length",
+          "n == grid[i].length",
+          "1 <= m, n <= 300"
+        ],
+        "starterCode": "function numIslands(grid) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "grid": [
+                ["1", "1", "0"],
+                ["0", "1", "0"],
+                ["1", "1", "1"]
+              ]
+            },
+            "expected": 1
+          }
+        ],
+        "solution": "function numIslands(grid) {\n  if (!grid.length) return 0;\n  let count = 0;\n  function dfs(i, j) {\n    if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] === '0') return;\n    grid[i][j] = '0';\n    dfs(i + 1, j); dfs(i - 1, j); dfs(i, j + 1); dfs(i, j - 1);\n  }\n  for (let i = 0; i < grid.length; i++) {\n    for (let j = 0; j < grid[0].length; j++) {\n      if (grid[i][j] === '1') {\n        count++;\n        dfs(i, j);\n      }\n    }\n  }\n  return count;\n}"
+      }
+    },
+    {
+      "id": "graph-bfs",
+      "title": "Graph Breadth First Search",
+      "difficulty": "Medium",
+      "explanation": "Breadth-First Search explores neighbors level by level using a queue. Finds shortest paths.",
+      "timeComplexity": "O(V + E)",
+      "spaceComplexity": "O(V)",
+      "exercise": {
+        "title": "Rotting Oranges",
+        "difficulty": "Medium",
+        "description": "You are given an m x n grid where 0=empty, 1=fresh orange, 2=rotten orange. Return minimum minutes until no fresh orange. If impossible, return -1.",
+        "examples": [
+          {
+            "input": "grid = [[2,1,1],[1,1,0],[0,1,1]]",
+            "output": "4",
+            "explanation": "After 4 minutes, all oranges are rotten."
+          }
+        ],
+        "constraints": [
+          "m == grid.length",
+          "n == grid[i].length",
+          "1 <= m, n <= 10"
+        ],
+        "starterCode": "function orangesRotting(grid) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "grid": [
+                [2, 1, 1],
+                [1, 1, 0],
+                [0, 1, 1]
+              ]
+            },
+            "expected": 4
+          }
+        ],
+        "solution": "function orangesRotting(grid) {\n  const rows = grid.length, cols = grid[0].length;\n  const queue = [];\n  let fresh = 0;\n  for (let i = 0; i < rows; i++) {\n    for (let j = 0; j < cols; j++) {\n      if (grid[i][j] === 2) queue.push([i, j, 0]);\n      else if (grid[i][j] === 1) fresh++;\n    }\n  }\n  const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];\n  let minutes = 0;\n  while (queue.length) {\n    const [r, c, min] = queue.shift();\n    minutes = min;\n    for (const [dr, dc] of dirs) {\n      const nr = r + dr, nc = c + dc;\n      if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] === 1) {\n        grid[nr][nc] = 2;\n        fresh--;\n        queue.push([nr, nc, min + 1]);\n      }\n    }\n  }\n  return fresh === 0 ? minutes : -1;\n}"
+      }
+    }
+  ],
+  "Dynamic Programming": [
+    {
+      "id": "dp-1d",
+      "title": "1D DP",
+      "difficulty": "Easy",
+      "explanation": "Build solutions from smaller subproblems. 1D DP uses array where dp[i] depends on previous values.",
+      "timeComplexity": "O(n)",
+      "spaceComplexity": "O(1) optimized",
+      "exercise": {
+        "title": "House Robber",
+        "difficulty": "Medium",
+        "description": "You are a professional robber. Each house has money, but adjacent houses have alarms. Return maximum money you can rob without alerting police.",
+        "examples": [
+          {
+            "input": "nums = [1,2,3,1]",
+            "output": "4",
+            "explanation": "Rob house 1 (money = 1) and house 3 (money = 3). Total = 4."
+          }
+        ],
+        "constraints": ["1 <= nums.length <= 100", "0 <= nums[i] <= 400"],
+        "starterCode": "function rob(nums) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "nums": [1, 2, 3, 1]
+            },
+            "expected": 4
+          },
+          {
+            "input": {
+              "nums": [2, 7, 9, 3, 1]
+            },
+            "expected": 12
+          }
+        ],
+        "solution": "function rob(nums) {\n  if (nums.length === 0) return 0;\n  if (nums.length === 1) return nums[0];\n  let prev2 = nums[0], prev1 = Math.max(nums[0], nums[1]);\n  for (let i = 2; i < nums.length; i++) {\n    const curr = Math.max(prev1, prev2 + nums[i]);\n    prev2 = prev1;\n    prev1 = curr;\n  }\n  return prev1;\n}"
+      }
+    },
+    {
+      "id": "knapsack",
+      "title": "0/1 Knapsack",
+      "difficulty": "Medium",
+      "explanation": "Select items with weights and values to maximize value within weight limit. Each item taken once or not at all.",
+      "timeComplexity": "O(n * W)",
+      "spaceComplexity": "O(W) optimized",
+      "exercise": {
+        "title": "Partition Equal Subset Sum",
+        "difficulty": "Medium",
+        "description": "Given an integer array nums, return true if you can partition the array into two subsets with equal sum.",
+        "examples": [
+          {
+            "input": "nums = [1,5,11,5]",
+            "output": "true",
+            "explanation": "The array can be partitioned as [1, 5, 5] and [11]."
+          }
+        ],
+        "constraints": ["1 <= nums.length <= 200", "1 <= nums[i] <= 100"],
+        "starterCode": "function canPartition(nums) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "nums": [1, 5, 11, 5]
+            },
+            "expected": true
+          },
+          {
+            "input": {
+              "nums": [1, 2, 3, 5]
+            },
+            "expected": false
+          }
+        ],
+        "solution": "function canPartition(nums) {\n  const sum = nums.reduce((a, b) => a + b, 0);\n  if (sum % 2 !== 0) return false;\n  const target = sum / 2;\n  const dp = Array(target + 1).fill(false);\n  dp[0] = true;\n  for (const num of nums) {\n    for (let j = target; j >= num; j--) {\n      dp[j] = dp[j] || dp[j - num];\n    }\n  }\n  return dp[target];\n}"
+      }
+    }
+  ],
+  "Advanced": [
+    {
+      "id": "union-find",
+      "title": "Union-Find (DSU)",
+      "difficulty": "Medium",
+      "explanation": "Disjoint Set Union efficiently tracks connected components. Uses path compression and union by rank.",
+      "timeComplexity": "O(\u03b1(n)) \u2248 O(1)",
+      "spaceComplexity": "O(n)",
+      "exercise": {
+        "title": "Number of Connected Components",
+        "difficulty": "Medium",
+        "description": "You have a graph of n nodes and array edges where edges[i] = [ai, bi]. Return the number of connected components.",
+        "examples": [
+          {
+            "input": "n = 5, edges = [[0,1],[1,2],[3,4]]",
+            "output": "2",
+            "explanation": "Nodes 0-1-2 form one component, 3-4 form another."
+          }
+        ],
+        "constraints": ["1 <= n <= 2000", "0 <= edges.length <= 5000"],
+        "starterCode": "function countComponents(n, edges) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "n": 5,
+              "edges": [
+                [0, 1],
+                [1, 2],
+                [3, 4]
+              ]
+            },
+            "expected": 2
+          }
+        ],
+        "solution": "function countComponents(n, edges) {\n  const parent = Array.from({ length: n }, (_, i) => i);\n  function find(x) {\n    if (parent[x] !== x) parent[x] = find(parent[x]);\n    return parent[x];\n  }\n  function union(x, y) {\n    parent[find(x)] = find(y);\n  }\n  for (const [u, v] of edges) union(u, v);\n  return new Set(parent.map(find)).size;\n}"
+      }
+    },
+    {
+      "id": "backtracking",
+      "title": "Backtracking",
+      "difficulty": "Medium",
+      "explanation": "Backtracking is an algorithmic technique for solving problems incrementally by trying partial solutions and abandoning them ('backtracking') if they don't lead to valid solutions. It's a form of exhaustive search with pruning.",
+      "timeComplexity": "O(b^d)",
+      "spaceComplexity": "O(d)",
+      "exercise": {
+        "title": "Subsets",
+        "difficulty": "Medium",
+        "description": "Given an integer array nums of unique elements, return all possible subsets (the power set).",
+        "examples": [
+          {
+            "input": "nums = [1,2,3]",
+            "output": "[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]",
+            "explanation": "All possible subsets."
+          }
+        ],
+        "constraints": ["1 <= nums.length <= 10", "All numbers unique"],
+        "starterCode": "function subsets(nums) {\n  // Your code here\n  \n}",
+        "testCases": [
+          {
+            "input": {
+              "nums": [1, 2, 3]
+            },
+            "expected": [[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]]
+          }
+        ],
+        "solution": "function subsets(nums) {\n  const result = [];\n  function backtrack(start, current) {\n    result.push([...current]);\n    for (let i = start; i < nums.length; i++) {\n      current.push(nums[i]);\n      backtrack(i + 1, current);\n      current.pop();\n    }\n  }\n  backtrack(0, []);\n  return result;\n}"
+      },
+      "videoUrl": "https://www.youtube.com/watch?v=Zq4upTEaQyM",
+      "whenToUse": [
+        "Generating all permutations/combinations",
+        "Solving puzzles (Sudoku, N-Queens)",
+        "Finding all paths in a maze",
+        "Subset generation",
+        "Constraint satisfaction problems",
+        "Decision problems with multiple choices"
+      ],
+      "howItWorks": "1. Choose: Make a choice from available options\n2. Explore: Recursively solve the subproblem\n3. Unchoose: If solution fails, undo the choice (backtrack)\n4. Try next option\n5. Base case: Valid solution found or no options left",
+      "keyInsights": [
+        "Explores all possibilities systematically",
+        "Prunes invalid paths early (optimization)",
+        "Uses recursion naturally",
+        "Can be exponential time in worst case"
+      ],
+      "commonPatterns": [
+        "**Permutations**: Generate all orderings",
+        "**Combinations**: Choose k from n elements",
+        "**Subsets**: Generate all possible subsets",
+        "**Path Finding**: Find all valid paths",
+        "**Constraint Problems**: Satisfy all constraints"
+      ],
+      "dataStructures": [
+        "Recursion Stack",
+        "Sets",
+        "Arrays",
+        "Visited Markers"
+      ],
+      "realWorldUse": "Sudoku solvers, chess engines, route planning with constraints, scheduling problems, and automated theorem proving."
+    }
+  ]
+}
