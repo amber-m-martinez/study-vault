@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit2, Save, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import CategorySelect from "./CategorySelect";
 
 export default function NoteView({ notes, onUpdateNote, onDeleteNote }) {
   const { noteId } = useParams();
@@ -116,29 +117,17 @@ export default function NoteView({ notes, onUpdateNote, onDeleteNote }) {
               />
 
               <div className="flex gap-4">
-                <select
-                  value={editedNote.dataStructure || ""}
+                <CategorySelect
+                  value={editedNote.dataStructure}
                   onChange={(e) =>
                     setEditedNote({
                       ...editedNote,
                       dataStructure: e.target.value,
                     })
                   }
+                  label="Category (optional)"
                   className="px-3 py-2 border border-stone-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-stone-400"
-                >
-                  <option value="">Topic (optional)</option>
-                  <option value="Arrays">Arrays</option>
-                  <option value="Strings">Strings</option>
-                  <option value="Linked Lists">Linked Lists</option>
-                  <option value="Stacks">Stacks</option>
-                  <option value="Queues">Queues</option>
-                  <option value="Hash Maps">Hash Maps</option>
-                  <option value="Trees">Trees</option>
-                  <option value="Graphs">Graphs</option>
-                  <option value="Heaps">Heaps</option>
-                  <option value="Tries">Tries</option>
-                  <option value="Other">Other</option>
-                </select>
+                />
 
                 <input
                   type="text"

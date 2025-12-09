@@ -1,5 +1,5 @@
 import React from "react";
-import { BookOpen, Code, FileText, Home, Star } from "lucide-react";
+import { BookOpen, Code, FileText, Home, Star, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 export default function Navbar({ currentPage, onNavigate }) {
@@ -11,6 +11,7 @@ export default function Navbar({ currentPage, onNavigate }) {
     { id: "problems", label: "Problems", icon: Code, path: "/problems" },
     { id: "resources", label: "Resources", icon: Star, path: "/resources" },
     { id: "notes", label: "Notes", icon: FileText, path: "/notes" },
+    { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
   ];
 
   return (

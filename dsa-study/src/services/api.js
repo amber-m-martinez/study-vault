@@ -122,3 +122,44 @@ export const notesAPI = {
       method: 'DELETE',
     }),
 };
+
+// ==================== SETTINGS API ====================
+
+export const settingsAPI = {
+  get: () => apiRequest('/settings'),
+
+  update: (settings) =>
+    apiRequest('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    }),
+};
+
+// ==================== CATEGORIES API ====================
+
+export const categoriesAPI = {
+  getAll: () => apiRequest('/categories'),
+
+  create: (category) =>
+    apiRequest('/categories', {
+      method: 'POST',
+      body: JSON.stringify(category),
+    }),
+
+  update: (id, category) =>
+    apiRequest(`/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(category),
+    }),
+
+  delete: (id) =>
+    apiRequest(`/categories/${id}`, {
+      method: 'DELETE',
+    }),
+
+  reorder: (categoryIds) =>
+    apiRequest('/categories/reorder', {
+      method: 'PUT',
+      body: JSON.stringify({ categoryIds }),
+    }),
+};

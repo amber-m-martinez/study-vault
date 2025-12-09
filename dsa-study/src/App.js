@@ -10,7 +10,8 @@ import lessonData from "./components/lesson-data.json";
 import NotesPage from "./components/NotesPage";
 import NoteView from "./components/NoteView";
 import Modal from "./components/Modal";
-import { resourcesAPI, notesAPI, lessonsAPI } from "./services/api";
+import SettingsPage from "./components/SettingsPage";
+import { resourcesAPI, notesAPI, lessonsAPI, settingsAPI, categoriesAPI } from "./services/api";
 
 function App() {
   const [completedLessons, setCompletedLessons] = useState([]);
@@ -19,6 +20,13 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [settings, setSettings] = useState({
+    appName: "Study Tracker",
+    studySubject: "Data Structures & Algorithms",
+    categoryLabel: "Topic",
+    categoryLabelPlural: "Topics",
+  });
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     resourceName: "",
     resourceType: "",
@@ -31,9 +39,36 @@ function App() {
   });
 
   useEffect(() => {
+    loadSettings();
+    loadCategories();
     loadCompletedLessons();
     loadResourcesAndNotes();
   }, []);
+
+  const loadSettings = async () => {
+    try {
+      const data = await settingsAPI.get();
+      if (data) {
+        setSettings({
+          appName: data.app_name || data.appName || "Study Tracker",
+          studySubject: data.study_subject || data.studySubject || "Data Structures & Algorithms",
+          categoryLabel: data.category_label || data.categoryLabel || "Topic",
+          categoryLabelPlural: data.category_label_plural || data.categoryLabelPlural || "Topics",
+        });
+      }
+    } catch (error) {
+      console.log("First load - using defaults");
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const data = await categoriesAPI.getAll();
+      setCategories(data || []);
+    } catch (error) {
+      console.log("First load - using defaults");
+    }
+  };
 
   const loadCompletedLessons = async () => {
     try {
@@ -285,6 +320,16 @@ function App() {
                 onDeleteItem={deleteItem}
                 onToggleFavorite={toggleFavorite}
               />
+            </>
+          }
+        ></Route>
+        <Route
+          exact
+          path="/settings"
+          element={
+            <>
+              <Navbar />
+              <SettingsPage />
             </>
           }
         ></Route>

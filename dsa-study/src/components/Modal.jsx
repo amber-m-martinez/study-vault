@@ -1,5 +1,6 @@
 import React from "react";
 import { X, Check } from "lucide-react";
+import CategorySelect from "./CategorySelect";
 
 function Modal({
   type,
@@ -85,24 +86,11 @@ function Modal({
                 <option value="YouTube">YouTube</option>
                 <option value="Course">Course</option>
               </select>
-              <select
-                value={formData.dataStructure || ""}
+              <CategorySelect
+                value={formData.dataStructure}
                 onChange={(e) => onChange("dataStructure", e.target.value)}
-                className="w-full p-3 border border-stone-300 focus:outline-none focus:border-stone-800 bg-white"
-              >
-                <option value="">Data Structure</option>
-                <option value="Arrays">Arrays</option>
-                <option value="Strings">Strings</option>
-                <option value="Linked Lists">Linked Lists</option>
-                <option value="Stacks">Stacks</option>
-                <option value="Queues">Queues</option>
-                <option value="Hash Maps">Hash Maps</option>
-                <option value="Trees">Trees</option>
-                <option value="Graphs">Graphs</option>
-                <option value="Heaps">Heaps</option>
-                <option value="Tries">Tries</option>
-                <option value="Other">Other</option>
-              </select>
+                label="Category"
+              />
               <input
                 type="url"
                 placeholder="Link"
@@ -137,24 +125,11 @@ function Modal({
                 className="w-full p-3 border border-stone-300 focus:outline-none focus:border-stone-800 bg-white"
                 rows="8"
               />
-              <select
-                value={formData.dataStructure || ""}
+              <CategorySelect
+                value={formData.dataStructure}
                 onChange={(e) => onChange("dataStructure", e.target.value)}
-                className="w-full p-3 border border-stone-300 focus:outline-none focus:border-stone-800 bg-white"
-              >
-                <option value="">Data Structure</option>
-                <option value="Arrays">Arrays</option>
-                <option value="Strings">Strings</option>
-                <option value="Linked Lists">Linked Lists</option>
-                <option value="Stacks">Stacks</option>
-                <option value="Queues">Queues</option>
-                <option value="Hash Maps">Hash Maps</option>
-                <option value="Trees">Trees</option>
-                <option value="Graphs">Graphs</option>
-                <option value="Heaps">Heaps</option>
-                <option value="Tries">Tries</option>
-                <option value="Other">Other</option>
-              </select>
+                label="Category"
+              />
               <input
                 type="text"
                 placeholder="Tags (comma-separated)"

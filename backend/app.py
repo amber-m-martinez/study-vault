@@ -88,6 +88,50 @@ def init_db():
         )
     ''')
 
+    # User settings table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_settings (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            app_name TEXT DEFAULT 'Study Tracker',
+            study_subject TEXT DEFAULT 'Data Structures & Algorithms',
+            category_label TEXT DEFAULT 'Topic',
+            category_label_plural TEXT DEFAULT 'Topics',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Custom categories table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS custom_categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            display_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Check if settings exist, if not create default
+    cursor.execute('SELECT COUNT(*) as count FROM user_settings')
+    if cursor.fetchone()['count'] == 0:
+        cursor.execute('''
+            INSERT INTO user_settings (id, app_name, study_subject, category_label, category_label_plural)
+            VALUES (1, 'Study Tracker', 'Data Structures & Algorithms', 'Topic', 'Topics')
+        ''')
+
+    # Check if categories exist, if not create defaults
+    cursor.execute('SELECT COUNT(*) as count FROM custom_categories')
+    if cursor.fetchone()['count'] == 0:
+        default_categories = [
+            'Arrays', 'Strings', 'Linked Lists', 'Stacks', 'Queues',
+            'Hash Maps', 'Trees', 'Graphs', 'Heaps', 'Tries', 'Other'
+        ]
+        for idx, category in enumerate(default_categories):
+            cursor.execute('''
+                INSERT INTO custom_categories (name, display_order)
+                VALUES (?, ?)
+            ''', (category, idx))
+
     db.commit()
     db.close()
 
@@ -604,6 +648,151 @@ def delete_note(note_id):
     db.close()
 
     return jsonify({'message': 'Note deleted'})
+
+# ==================== SETTINGS ENDPOINTS ====================
+
+@app.route('/api/settings', methods=['GET'])
+def get_settings():
+    """Get user settings"""
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('SELECT * FROM user_settings WHERE id = 1')
+    settings = cursor.fetchone()
+
+    db.close()
+    return jsonify(dict(settings) if settings else {})
+
+@app.route('/api/settings', methods=['PUT'])
+def update_settings():
+    """Update user settings"""
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.execute('''
+            UPDATE user_settings
+            SET app_name = ?, study_subject = ?, category_label = ?,
+                category_label_plural = ?, updated_at = ?
+            WHERE id = 1
+        ''', (
+            data.get('appName'),
+            data.get('studySubject'),
+            data.get('categoryLabel'),
+            data.get('categoryLabelPlural'),
+            datetime.now().isoformat()
+        ))
+
+        db.commit()
+        db.close()
+
+        return jsonify({'message': 'Settings updated'})
+    except Exception as e:
+        db.close()
+        return jsonify({'error': str(e)}), 400
+
+# ==================== CATEGORIES ENDPOINTS ====================
+
+@app.route('/api/categories', methods=['GET'])
+def get_categories():
+    """Get all custom categories"""
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('SELECT * FROM custom_categories ORDER BY display_order ASC')
+    categories = [dict(row) for row in cursor.fetchall()]
+
+    db.close()
+    return jsonify(categories)
+
+@app.route('/api/categories', methods=['POST'])
+def create_category():
+    """Create a new category"""
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        # Get the max display_order
+        cursor.execute('SELECT MAX(display_order) as max_order FROM custom_categories')
+        result = cursor.fetchone()
+        max_order = result['max_order'] if result['max_order'] is not None else -1
+
+        cursor.execute('''
+            INSERT INTO custom_categories (name, display_order)
+            VALUES (?, ?)
+        ''', (data['name'], max_order + 1))
+
+        db.commit()
+        category_id = cursor.lastrowid
+        db.close()
+
+        return jsonify({'id': category_id, 'message': 'Category created'}), 201
+    except sqlite3.IntegrityError:
+        db.close()
+        return jsonify({'error': 'Category already exists'}), 400
+    except Exception as e:
+        db.close()
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/categories/<int:category_id>', methods=['PUT'])
+def update_category(category_id):
+    """Update a category"""
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.execute('''
+            UPDATE custom_categories
+            SET name = ?
+            WHERE id = ?
+        ''', (data['name'], category_id))
+
+        db.commit()
+        db.close()
+
+        return jsonify({'message': 'Category updated'})
+    except Exception as e:
+        db.close()
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/categories/<int:category_id>', methods=['DELETE'])
+def delete_category(category_id):
+    """Delete a category"""
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('DELETE FROM custom_categories WHERE id = ?', (category_id,))
+
+    db.commit()
+    db.close()
+
+    return jsonify({'message': 'Category deleted'})
+
+@app.route('/api/categories/reorder', methods=['PUT'])
+def reorder_categories():
+    """Reorder categories"""
+    data = request.json  # Expects { categoryIds: [id1, id2, id3...] }
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        for idx, category_id in enumerate(data['categoryIds']):
+            cursor.execute('''
+                UPDATE custom_categories
+                SET display_order = ?
+                WHERE id = ?
+            ''', (idx, category_id))
+
+        db.commit()
+        db.close()
+
+        return jsonify({'message': 'Categories reordered'})
+    except Exception as e:
+        db.close()
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
